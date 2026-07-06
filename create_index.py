@@ -21,12 +21,13 @@ def create_index():
 
     print("\n1. Разбиение PDF на чанки...")
     chunker = Chunker()
-    chunks = chunker.create_chunks()
+    chunks = chunker.create_chunks(PDF_PATH)
     chunker.save_chunks(chunks)
 
-    print("\n2. Векторизация чанков...")
+    print("\n2. Векторизация чанков с nomic-embed-text...")
     embedder = Embedder()
     embeddings = embedder.encode_chunks(chunks)
+    print(f"Размерность эмбеддингов: {embeddings.shape}")
 
     print("\n3. Построение FAISS индекса...")
     dimension = embedder.get_dimension()

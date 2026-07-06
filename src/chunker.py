@@ -56,10 +56,8 @@ class Chunker:
 
     def create_chunks(self, pdf_path=None) -> List[Dict]:
         processor = PDFProcessor(pdf_path)
+        processor.load_pdf()
         doc = processor.doc
-        if not doc:
-            processor.load_pdf()
-            doc = processor.doc
 
         chunks = []
         chapter = "Введение"
@@ -96,7 +94,7 @@ class Chunker:
                 })
 
         processor.close()
-        print(f"Created {len(chunks)} chunks")
+        print(f"Создано {len(chunks)} чанков")
         return chunks
 
     def save_chunks(self, chunks: List[Dict], output_path=None):
@@ -105,7 +103,7 @@ class Chunker:
         output_path.parent.mkdir(parents=True, exist_ok=True)
         with open(output_path, 'w', encoding='utf-8') as f:
             json.dump(chunks, f, ensure_ascii=False, indent=2)
-        print(f"Saved chunks to {output_path}")
+        print(f"Чанки сохранены в {output_path}")
         return output_path
 
     def load_chunks(self, input_path=None):
@@ -115,5 +113,5 @@ class Chunker:
             return []
         with open(input_path, 'r', encoding='utf-8') as f:
             chunks = json.load(f)
-        print(f"Loaded {len(chunks)} chunks")
+        print(f"Загружено {len(chunks)} чанков")
         return chunks

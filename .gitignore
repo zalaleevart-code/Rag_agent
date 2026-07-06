@@ -12,3 +12,7 @@ __pycache__/
 Thumbs.db
 .DS_Store
 memory.json
+data/*.pdf
+output/faiss_index/
+*.faiss
+*.pkl

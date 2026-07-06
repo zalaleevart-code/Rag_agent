@@ -5,10 +5,9 @@ class UserMemory:
     def __init__(self, user_id: str):
         self.user_id = user_id
         self.history: List[Dict] = []
-        self.max_history = 6  # уменьшили с 10 до 6
+        self.max_history = 6
 
     def add_message(self, role: str, content: str):
-        # Обрезаем длинные сообщения
         if len(content) > 500:
             content = content[:500] + "..."
         self.history.append({"role": role, "content": content})

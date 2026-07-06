@@ -1,16 +1,20 @@
 import fitz
+from pathlib import Path
 from src.config import PDF_PATH
 
 class PDFProcessor:
     def __init__(self, pdf_path=None):
-        self.pdf_path = pdf_path or PDF_PATH
+        if pdf_path is None:
+            self.pdf_path = PDF_PATH
+        else:
+            self.pdf_path = Path(pdf_path) if isinstance(pdf_path, (str, Path)) else pdf_path
         self.doc = None
 
     def load_pdf(self):
         if not self.pdf_path.exists():
-            raise FileNotFoundError(f"PDF not found: {self.pdf_path}")
-        self.doc = fitz.open(self.pdf_path)
-        print(f"Loaded {len(self.doc)} pages")
+            raise FileNotFoundError(f"PDF не найден: {self.pdf_path}")
+        self.doc = fitz.open(str(self.pdf_path))
+        print(f"Загружено {len(self.doc)} страниц")
         return self.doc
 
     def get_page_count(self):
@@ -27,7 +31,7 @@ class PDFProcessor:
         for p in range(len(self.doc)):
             text = self.doc[p].get_text()
             if text.strip():
-                full_text += f"\n--- Page {p + 1} ---\n"
+                full_text += f"\n--- Страница {p + 1} ---\n"
                 full_text += text
         return full_text
 

@@ -1,7 +1,10 @@
 import sys
-import ollama
+from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).parent))
+
 from src.agentic_rag import AgenticRAG
-from src.config import PDF_PATH, LLM_MODEL, FAISS_INDEX_DIR, OUTPUT_DIR
+from src.config import PDF_PATH, LLM_MODEL, FAISS_INDEX_DIR, OUTPUT_DIR, EMBEDDING_MODEL
 
 USER_ID = "main"
 
@@ -11,32 +14,43 @@ def main():
     print("=" * 50)
 
     try:
+        import ollama
         ollama.list()
+        print("Ollama запущен")
     except:
         print("Ollama не запущен!")
+        print("Запустите: ollama serve")
         return
 
     if not PDF_PATH.exists():
         print(f"PDF не найден: {PDF_PATH}")
+        print("Положите PDF в папку data/")
         return
 
-    if not (FAISS_INDEX_DIR / "index.faiss").exists() or not (OUTPUT_DIR / "chunks.json").exists():
-        print("Запустите create_index.py сначала!")
+    if not (FAISS_INDEX_DIR / "index.faiss").exists():
+        print("Индекс не найден. Запустите create_index.py сначала!")
         return
 
-    rag = AgenticRAG()
-    rag.load_index()
+    print(f"Модель эмбеддингов: {EMBEDDING_MODEL}")
+    print(f"LLM модель: {LLM_MODEL}")
 
-    print(f"\nМодель: {LLM_MODEL}")
-    print("Введите 'exit' для выхода, '/clear' для очистки памяти\n")
+    try:
+        rag = AgenticRAG()
+        rag.load_index()
+    except Exception as e:
+        print(f"Ошибка загрузки индекса: {e}")
+        return
+
+    print("\nВведите 'exit' для выхода, '/clear' для очистки памяти\n")
 
     while True:
         try:
             q = input("\nВопрос: ").strip()
-            if q.lower() in ['exit','quit']:
+            if q.lower() in ['exit', 'quit']:
                 break
             if q == '/clear':
                 rag.memory.clear_user(USER_ID)
+                rag.memory.save_to_file()
                 print("Память очищена")
                 continue
             if not q:
@@ -49,6 +63,8 @@ def main():
             print("=" * 50)
 
         except KeyboardInterrupt:
+            rag.memory.save_to_file()
+            print("\nДо свидания!")
             break
         except Exception as e:
             print(f"Ошибка: {e}")
